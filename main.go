@@ -43,6 +43,6 @@ func handleNumbers(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", handleNumbers)
-	fmt.Println("Listening for numbers ...")
+	log.Println("Listening for numbers ...")
 	http.ListenAndServe("0.0.0.0:8000", nil)
 }
