@@ -55,8 +55,7 @@ privileges = {
     "admin": [Permission(["reset"], [type([])], []),
               Permission(["put", "get"], [type(1)], [])],
     "expert": [Permission(["put", "get"], [type(1)], [])],
-    "domain-expert": [Permission(["put"], [type(1)], [is_in_domain]),
-                      Permission(["get"], [type(1)], [])],
+    "domain-expert": [Permission(["put", "get"], [type(1)], [is_in_domain])],
     "trainee": [Permission(["get"], [type(1)], [is_simple])],
     "domain-trainee": [Permission(["get"], [type(1)],
                                   [is_simple, is_in_domain])],
@@ -76,6 +75,7 @@ def find_user(path):
         if re.search(username, path):
             return USERS[username]
     raise Exception("not authenticated!!!")
+
 
 class NumberHandler(SocketServer.StreamRequestHandler):
 
@@ -106,7 +106,9 @@ class NumberHandler(SocketServer.StreamRequestHandler):
         # then return all then numbers they are allowed to see
         viewable_numbers = [n for n in NUMS if requesting_user.may("get", n)]
         self.wfile.write("The numbers are: {}".format(viewable_numbers))
+        print "all ", NUMS
         print "sent", viewable_numbers
+
 
 if __name__ == "__main__":
     try:
