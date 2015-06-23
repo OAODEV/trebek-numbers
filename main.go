@@ -10,6 +10,31 @@ import(
 
 var numbers []int64
 
+func insertNumber(n int64) {
+	numbers = append(numbers, n)
+}
+
+func parseNumbers(path string) []int64 {
+	var parsed []int64
+	requestedNumbers := strings.Split(string, "/")
+
+	log.Println("Parsing:", path)
+
+	// fill newNumbers by parsing requested numbers
+	for _, s := range requestedNumbers {
+		parsed, err := strconv.ParseInt(s, 10, 0)
+		if err != nil {
+			log.Println("ERR:", err)
+			continue
+		}
+		// and appending everything we can parse
+		log.Println("Parsed:", parsed)
+		parsed = append(numbers, parsed)
+	}
+
+	return parsed
+}
+
 func handleNumbers(w http.ResponseWriter, r *http.Request) {
 	/* handle the numbers endpoint.
          *
@@ -19,26 +44,15 @@ func handleNumbers(w http.ResponseWriter, r *http.Request) {
          */
 
 	log.Println("Request recieved:", r.URL.Path)
+	requestedNubmers := parseNumbers(r.URL.Path)
 
-	requestedNumbers := strings.Split(r.URL.Path, "/")
-	log.Println("Requested Numbers:", requestedNumbers)
+	// insert numbers they are allowed to insert
+	insertNumbers(filterByPerms(user, "insert", requestedNumbers))
 
-	// fill newNumbers by parsing requested numbers
-	for _, s := range requestedNumbers {
-		log.Println("Parsing:", s)
-		parsed, err := strconv.ParseInt(s, 10, 0)
-		if err != nil {
-			log.Println("ERR:", err)
-			continue
-		}
-		// and appending everything we can parse
-		log.Println("Parsed:", parsed)
-		numbers = append(numbers, parsed)
-	}
-
-	// then return all the numbers they have access to
-	log.Println("returning numbers:", numbers)
-	fmt.Fprintf(w, "For you, the numbers are: %v", numbers)
+	// then return all the numbers they are allowed to see
+	viewableNumbers := filterByPerms(user, "see", numbers)
+	log.Println("Returning numbers:", viewableNumbers)
+	fmt.Fprintf(w, "For you, the numbers are: %v", viewableNumbers)
 }
 
 func main() {
